@@ -1,9 +1,11 @@
-# ID успешной посылки: 117792597
-
+# ID успешной посылки: 117838639
 
 def get_platforms_quantity(robots: list, limit: int) -> int:
     """Основная функция проекта. Обрабатывает массив из весов роботов,
-    для 'отгрузки' их по двое на платформы с заданным лимитом по весу
+    используя метод двух указателей,
+    чтобы сравнить сумму двух весов роботов с переданным лимитом,
+    инкременировать переменную счетчик
+    и вернуть минимальное необходимое количество платформ для роботов.
     """
     list.sort(robots)
 
@@ -12,62 +14,25 @@ def get_platforms_quantity(robots: list, limit: int) -> int:
     left_pointer: int = 0
     right_pointer: int = len(robots) - 1
 
-    while robots:
-        """Цикл, работающий пока все роботы не выгрузятся на платформы.
-        Сравнивает попарно веса в массиве, чтобы 'вытащить' их.
-        При самом эффективном расположении удаляет значения из массива
-        и увеличивает счётчик платформ.
+    while left_pointer <= right_pointer:
+        """Цикл по методу двух указателей. Сравнивает сумму весов роботов,
+        на которые указывают указатели. Если суммы, большие или равные лимиту,
+        не были найдены в массиве, то считает количество пар на платформу.
         """
-        if len(robots) == 1:
-            """"""
-            if robots[0] <= limit:
-                del robots[0]
-                platforms_counter += 1
-            else:
-                raise ValueError('Один из роботов превысил лимит по весу')
+        weight_sum: int = robots[left_pointer] + robots[right_pointer]
 
-        if left_pointer < right_pointer:
-            light_robot = robots[left_pointer]
-            heavy_robot = robots[right_pointer]
+        if weight_sum < limit:
+            left_pointer += 1
+            continue
+        elif weight_sum == limit:
+            left_pointer += 1
 
-            if light_robot == limit:
-                del robots[left_pointer]
-                platforms_counter += 1
-            elif heavy_robot == limit:
-                del robots[right_pointer]
-                platforms_counter += 1
+        right_pointer -= 1
+        platforms_counter += 1
 
-            result: int = light_robot + heavy_robot
-
-            if result > limit:
-                right_pointer -= 1
-            elif result == limit:
-                del robots[left_pointer]
-                del robots[right_pointer - 1]
-                right_pointer = len(robots) - 1
-                platforms_counter += 1
-            elif (result < limit
-                  and right_pointer == len(robots) - 1):
-                del robots[left_pointer]
-                del robots[right_pointer - 1]
-                right_pointer = len(robots) - 1
-                platforms_counter += 1
-            elif (result < limit
-                  and light_robot + robots[right_pointer + 1] > limit):
-                del robots[left_pointer]
-                del robots[right_pointer - 1]
-                right_pointer = len(robots) - 1
-                platforms_counter += 1
-            else:
-                left_pointer += 1
-        else:
-            for robot_index in range(len(robots)):
-                if robots[robot_index] <= limit:
-                    platforms_counter += 1
-                else:
-                    raise ValueError('Один из роботов превысил лимит по весу')
-
-            return platforms_counter
+    else:
+        if platforms_counter == 0:
+            platforms_counter = (len(robots) + 1) // 2
 
     return platforms_counter
 
